@@ -1,0 +1,102 @@
+---
+title: "HW3_Instruction"
+author: "name"
+format: pdf
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# HW 03- Introduction (100 pts).
+## Assignment Overview
+The purpose of this assignment is to review probability distribution functions, calculating expected value and variance for a random variable.  
+
+## Instructions
+- You will answer the questions directly in the Rmarkdown template file provided. 
+- Please change your name in the template file.
+- How to insert R code chunks: You can quickly insert chunks into your R Markdown file with the keyboard shortcut Cmd + Option + I (Windows Ctrl + Alt + I).
+- You can knit a PDF and upload the final pdf file to Canvas.
+
+
+## Part I Discrete Random Variable Distribution (Total 20 pts, 5 pts each)
+
+Let $X$ be a random variable with the following probability mass function:
+
+\begin{center}
+\begin{tabular}{c|cccc}
+$X = x$ & 0 & 1 & 2 & 3 \\\hline
+$P(X=x)$ & 0.10 & 0.20 & 0.30 & 0.40\\
+\end{tabular}
+\end{center}
+
+a) Find $P(X\geq 2)$.
+
+b) Find $P(X \geq 2|X\geq 1)$.
+
+c) Find $E(X)$.
+
+d) Find $\text{Var(X)}$.
+
+## Part II: Expected value and variance (20 pts)
+
+Let $X$ be a random variable that can take two possible values 0 and 1. It has the following probability mass function: P(X=1) = p and P(X = 0) = 1-p. 
+
+\begin{center}
+\begin{tabular}{c|cccc}
+$X = x$ & 0 & 1 \\\hline
+$P(X=x)$ & 1-p & p \\
+\end{tabular}
+\end{center}
+
+a) Find $E(X)$.
+
+b) Find $\text{Var(X)}$.
+
+## Part III:  Binomial Distribution (Total 40 pts, 10 pts each)
+According to data from the CDC, about 37.1\% of adults (individuals 18 years of age or older) in the United States and 57.9\% of children (individuals between 6 months and 17 years of age) in the United States received a flu vaccine during the 2017-2018 flu season. 
+
+a) Consider a random sample of 50 adults. 
+
+    i. Calculate the probability that exactly 20 adults received a flu vaccine.
+    
+    ii. Calculate the probability that exactly 30 adults did not receive a flu vaccine.
+
+b) Consider a random sample of 20 children.
+
+    i. What is the probability that at most 10 children received a flu vaccine?
+
+    ii. What is the probability that at least 11 children received a flu vaccine?
+
+c) State two assumptions you needed to make in order to answer parts a) and b). Briefly comment on the extent to which those assumptions were reasonable.
+
+d) Consider a random sample of $n = 70$ individuals, which consists of 50 adults and 20 children. Let $Z$ represent the total number of individuals who received the flu vaccine in the sample of 70 individuals. Does $Z$ follow a binomial distribution? Explain your answer.
+
+
+## Part IV Consider a senior Statistics concentrator with a packed extracurricular schedule, taking five classes, and writing a thesis. Each time she takes an exam, she either scores very well (at least two standard deviations above the mean) or does not. Her performance on any given exam depends on whether she is operating on a reasonable amount of sleep the night before (more than 7 hours), relatively little sleep (between 4 - 7 hours, inclusive), or practically no sleep (less than 4 hours). (20 pts)
+
+When she has had practically no sleep, she scores very well about 30\% of the time. When she has had relatively little sleep, she scores very well 40\% of the time. When she has had a reasonable amount of sleep, she scores very well 42\% of the time. Over the course of a semester, she has a reasonable amount of sleep 50\% of nights, and practically no sleep 30\% of nights.
+
+  a) What is her overall probability of scoring very well on an exam?
+  
+  b) What is the probability she had practically no sleep the night before an exam where she scored very well?
+    
+  c) Suppose that one day she has three exams scheduled. What is the probability that she scores very well on exactly two of the exams, under the assumption that her performance on each exam is independent of her performance on another exam? (10 pts)
+    
+  d) What is the probability that she had practically no sleep the night prior to a day when she scored very well on exactly two out of three exams?
+
+
+ 
+
+
+## Part VI Bonus (Optional, the purpose is to encourage your efforts in learning and character growth. Bonus points could be given but not limited to the following efforts)
+a. Attend community coding or office hours: please list the date, time and the faculty/student assistant you met.
+b. Write a statement of how you overcome the difficulties in life in order to learn.
+c. Write your questions regarding lectures. 
+
+
+
+
+
+
