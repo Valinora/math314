@@ -1,0 +1,214 @@
+---
+title: "Homework 6"
+author: "Colin Jamison"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(123)
+```
+
+## Central Limit Theorem  (30 pts)
+
+1. Simulation study. Recall during class meeting time, we discussed a simulation study on the central limit theorem by experimenting as the sample size $n$ increases, the sampling distribution of the mean $\bar{X}$ will approach a Normal distribution $N(\mu, \sigma^2/n)$ regardless of the distribution of $X$ ($X$ $\sim$ $Bernouli(0.88)$)
+
+In this problem, you are going to
+
+1. Generate random data from Poisson distribution with parameter $\lambda = 1.2$ with sample size of your choice (e.g. n = 10).
+
+2. Compute the sample mean.
+
+3. Repeat 1 and 2 for 1000 times.
+
+4. Plot the distribution of your sample mean, and report the standard deviation of the sample mean.
+
+5. Experiment on different sample sizes (for example, n = 50, 100, 200) and repeat steps 1-4. Please plot the distribution of the sample means, and report the average of the sample means and standard deviation of the sample means in each case.
+
+Let $X \sim \text{Poisson}(\lambda = 1.2)$. By the CLT, $\bar{X} \xrightarrow{d} N(\mu, \sigma^2/n)$ where $\mu = \lambda = 1.2$ and $\sigma^2 = \lambda = 1.2$.
+
+```{r}
+simulate_means <- function(n, reps = 1000) {
+  replicate(reps, mean(rpois(n, lambda = 1.2)))
+}
+
+sample_sizes <- c(10, 50, 100, 200)
+
+par(mfrow = c(2, 2))
+for (n in sample_sizes) {
+  means <- simulate_means(n)
+  hist(means,
+       main = paste("n =", n),
+       xlab = expression(bar(X)),
+       breaks = 30)
+  abline(v = 1.2, col = "red", lwd = 2)
+}
+```
+
+```{r}
+# Report mean and SD of sample means for each n
+for (n in sample_sizes) {
+  means <- simulate_means(n)
+  cat("n =", n, "\n",
+      " Mean of xbar:", round(mean(means), 4), "\n",
+      " SD of xbar:  ", round(sd(means), 4),
+      " Theoretical: ", round(sqrt(1.2 / n), 4),
+      " Diff: ", round(sqrt(1.2 / n) - sd(means), 5), "\n") 
+}
+```
+
+As $n$ increases, the distribution of $\bar{X}$ becomes more tightly concentrated around $\mu = 1.2$ and more closely resembles a normal distribution, consistent with the CLT. The observed standard deviation of the sample means approaches $\sqrt{\lambda / n}$.
+
+## Problem 2 (20 pts) Interval Estimation for population proportion
+
+A city council wants to estimate the proportion of residents who support a new tax to fund public parks. They survey a random sample of 400 residents, and 220 of them state they are in favor of the tax. Please calculate a 95% confidence interval for the true proportion of all city residents who support the tax.
+
+```{r}
+# Given
+n <- 400
+x <- 220
+```
+
+1. What is a point estimation for the true proportion of all city residents who support the tax?
+
+$$\hat{p} = \frac{x}{n} = \frac{220}{400}$$
+
+```{r}
+p_hat <- x / n
+p_hat
+```
+
+2. Find the critical value based on the confidence level 95%.
+
+For a 95% confidence interval, $\alpha = 0.05$ and $z^* = z_{0.025}$.
+
+```{r}
+z_star <- qnorm(0.975)
+z_star
+```
+
+3. Find the standard error.
+
+$$SE = \sqrt{\frac{\hat{p}(1 - \hat{p})}{n}}$$
+
+```{r}
+se <- sqrt(p_hat * (1 - p_hat) / n)
+se
+```
+
+4. Calculate the margin of error.
+
+$$ME = z^* \cdot SE$$
+
+```{r}
+me <- z_star * se
+me
+```
+
+5. Find the lower bound and upper bound for the interval.
+
+$$\hat{p} \pm ME$$
+
+```{r}
+lower <- p_hat - me
+upper <- p_hat + me
+c(lower, upper)
+```
+
+6. Use R function to find the 95\% confidence interval in this case.
+
+```{r}
+prop.test(x, n, conf.level = 0.95, correct = FALSE)
+```
+
+
+
+## Problem 3 (20 pts)
+
+Use simulation method to study the $\chi^2$ distribution.
+
+1. Generate random numbers of size 1000 from standard normal distribution.
+
+2. For each generated number $x_i$, please calculate the square of $x_i$: $y_i = x_i^2$
+
+3. Please plot the histogram of $y$ and comment on the shape of the distribution of $y$.  (Comment: the distribution of $Y$ is considered as Chi square distribution with degree of freedom of 1. )
+
+Let $X \sim N(0, 1)$. Then $Y = X^2 \sim \chi^2(1)$.
+
+```{r}
+# 1. Generate 1000 standard normal values
+x <- rnorm(1000)
+
+# 2. Square each value
+y <- x^2
+
+# 3. Histogram
+hist(y, breaks = 50, main = expression(paste("Distribution of ", Y == X^2)),
+     xlab = "y", freq = FALSE)
+# Overlay theoretical chi-squared(1) density
+curve(dchisq(x, df = 1), col = "red", lwd = 2, add = TRUE)
+```
+
+The distribution of $Y$ is heavily right-skewed, concentrated near zero with a long right tail. This matches the $\chi^2(1)$ distribution: most squared standard normal values are small, but occasional large $|X|$ values produce large $Y$.
+
+
+## Problem 4 (30 pts)
+
+According to Pew Research, 62% of Americans think that too little priority was given to meeting the educational needs of K-12 students during the Covid-19 pandemic. Decisions to keep schools closed and not having enough in-person instruction contributed to parents concern about their kids education. A researcher wants to test whether this percentage is less among Democrats. The researcher selects a random sample of 260 Democrats, and finds that 150 of them think that too little priority was given to children's education during the pandemic.
+
+```{r}
+# Given
+n <- 260
+x <- 150
+p0 <- 0.62
+```
+
+1. What are the appropriate null and alternative hypotheses?
+
+The researcher wants to test whether the proportion among Democrats is *less* than 0.62.
+
+$$H_0: p = 0.62 \quad \text{vs.} \quad H_a: p < 0.62$$
+
+2. What is the point estimation for the population proportion.
+
+$$\hat{p} = \frac{x}{n} = \frac{150}{260}$$
+
+```{r}
+p_hat <- x / n
+p_hat
+```
+
+3. Compute the test statistic
+
+$$z = \frac{\hat{p} - p_0}{\sqrt{\frac{p_0(1 - p_0)}{n}}}$$
+
+```{r}
+z <- (p_hat - p0) / sqrt(p0 * (1 - p0) / n)
+z
+```
+
+4. Find the p value
+
+This is a left-tailed test, so $p\text{-value} = P(Z \leq z)$.
+
+```{r}
+p_value <- pnorm(z)
+p_value
+```
+
+5. Please use appropriate R function to perform the hypothesis test.
+
+```{r}
+prop.test(x, n, p = p0, alternative = "less", correct = FALSE)
+```
+
+
+
+
+## Bonus Part (Optional, the purpose is to encourage your efforts in learning and character growth. Bonus points could be given but not limited to the following efforts)
+a. Attend office hours or community coding: please list the date, time and the faculty/student assistant you met.
+b. Write a statement of how you overcome the difficulties in life in order to learn.
+c. What questions do you have about the course material on foundations of inference?
+
+
+

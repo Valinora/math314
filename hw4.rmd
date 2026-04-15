@@ -1,0 +1,119 @@
+---
+title: "Homework Assignment 4"
+author: "Colin Jamison"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(123)
+```
+
+## 1. The Poisson Distribution (40 pts Total)
+
+**Concept:** Models the number of events occurring within a fixed interval of time or space.
+
+### Scenario: Website Traffic
+
+A website receives an average of **5 hits per minute**. Assume that the number of hits the website receives
+follows Poisson distribution
+
+1. Find the probability of receiving exactly 3 hits in a minute.
+
+Let $X \sim \text{Poisson}(\lambda = 5)$.
+
+$$P(X = 3) = \frac{e^{-5} \cdot 5^3}{3!}$$
+
+```{r}
+dpois(3, lambda = 5)
+```
+
+2. Find the probability of receiving less than 10 hits in a minute.
+
+$$P(X < 10) = P(X \leq 9) = \sum_{x=0}^{9} \frac{e^{-5} \cdot 5^x}{x!}$$
+
+```{r}
+ppois(9, lambda = 5)
+```
+
+3. Simulation & Visualization
+
+a. Generate a vector called hits with length 1000 that simulates the number of hits using rpois().
+
+b. Create a histogram of this data with hist().
+
+c. Add a vertical red line at the mean using abline().
+
+```{r}
+hits <- rpois(1000, lambda = 5)
+hist(hits, main = "Simulated Website Hits per Minute", xlab = "Number of Hits")
+abline(v = mean(hits), col = "red", lwd = 2)
+```
+
+
+
+## 2. The Normal Distribution (30 pts, 15 pts each)
+
+
+### Scenario: A factory produces precision ball bearings. The target diameter is 25.00 mm. Due to machine variance, the diameters follow a Normal distribution with a mean ($\mu$) of 25.00 mm and a standard deviation ($\sigma$) of 0.02 mm.
+
+a: Defect Rates — Bearings are considered defective if they are smaller than 24.95 mm or larger than 25.05 mm. Use pnorm() to calculate the total proportion of defective bearings.
+
+Let $X \sim N(\mu = 25.00, \sigma = 0.02)$. A bearing is defective if $X < 24.95$ or $X > 25.05$.
+
+$$P(\text{defective}) = P(X < 24.95) + P(X > 25.05)$$
+
+```{r}
+pnorm(24.95, mean = 25.00, sd = 0.02) + pnorm(25.05, mean = 25.00, sd = 0.02, lower.tail = FALSE)
+```
+
+
+b: Identifying Thresholds — The quality control team wants to flag the smallest 1% of bearings for manual inspection. Use qnorm() to find the diameter threshold for this bottom 1%.
+
+We need the value $x$ such that $P(X \leq x) = 0.01$.
+
+```{r}
+qnorm(0.01, mean = 25.00, sd = 0.02)
+```
+
+
+
+---
+
+## 3. The Exponential Distribution (10 pts each Total: 30 pts + Bonus 10 pts)
+
+**Concept:** Models the time between events in a Poisson process.
+
+### Scenario: Call Center Waiting Time
+
+The time between calls at a help desk follows an exponential distribution with a rate  of **2 calls per hour**.
+For the help desk, assume arrivals are a Poisson process.
+
+a. Let $T$ be the waiting time (in hours) until the next ticket. What distribution does $T$ follow and what is its rate parameter?
+
+$T$ follows an Exponential distribution with rate parameter $\lambda = 2$, i.e. $T \sim \text{Exp}(\lambda = 2)$.
+
+b. Compute the probability you wait **more than 45 minutes** for the next ticket.
+
+45 minutes = 0.75 hours.
+
+$$P(T > 0.75) = 1 - P(T \leq 0.75) = e^{-\lambda \cdot 0.75}$$
+
+```{r}
+pexp(0.75, rate = 2, lower.tail = FALSE)
+```
+
+c. Compute the median waiting time.
+
+The median $m$ satisfies $P(T \leq m) = 0.5$, so $m = \frac{\ln(2)}{\lambda}$.
+
+```{r}
+qexp(0.5, rate = 2)
+```
+
+(Challenge Question) d. Memoryless property check: verify numerically that
+   $P(T > s+t \mid T > s) = P(T > t)$ using s = 0.5, t = 0.3.
+   
+   
+
+

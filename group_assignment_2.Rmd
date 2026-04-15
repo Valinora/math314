@@ -1,0 +1,56 @@
+---
+title: "Group Assignment 2"
+output: pdf_document
+date: "2026-03-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# The Relationship of Alchohol Consumption on Mental Health
+
+## I. Topic Area Statement and Research Questions
+
+Alcohol consumption is common among adults in the United States, and mental health issues affect many people. This project focuses on the relationship between alcohol consumption and mental health among adults in the United States. Using the NESARC dataset allows us to examine how different drinking behaviors relate to mental health measures. Specifically, aiming to see a correlation between alcohol consumption and mental health functioning among U.S. adults. Additionally, whether individuals who report alcohol use in the past 12 months report higher levels of depressive symptoms compared to non-drinkers. Finally, the study examines whether age influences the relationship between alcohol consumption and mental health scores. Understanding this relationship may help explain how alcohol use is associated with mental well-being.
+
+## II. Method
+
+```{r}
+# Load the data
+Nesarc_Data <- read.csv("~/Documents/dev/school/math314/Nesarc_Data.csv")
+```
+
+```{r}
+# Replace coded 'Unknown's with NA. Codes taken from NESARC codebook.
+Nesarc_Data$S2AQ3[Nesarc_Data$S2AQ3 == 9] <- NA
+Nesarc_Data$S2AQ5B[Nesarc_Data$S2AQ5B == 99] <- NA
+Nesarc_Data$S2AQ5D[Nesarc_Data$S2AQ5D == 99] <- NA
+Nesarc_Data$S1Q213[Nesarc_Data$S1Q213 == 9] <- NA
+Nesarc_Data$S2BQ1A16[Nesarc_Data$S2BQ1A16 == 9] <- NA
+Nesarc_Data$S2AQ16A[Nesarc_Data$S2AQ16A == 99] <- NA
+Nesarc_Data$NBMCS[Nesarc_Data$NBMCS == 99] <- NA
+```
+
+
+```{r}
+# Categorize the variables, and give the columns friendly names.
+Nesarc_Data$PREV_MONTHS <- factor(Nesarc_Data$S2AQ3, labels = c("Yes", "No"))
+Nesarc_Data$FREQ_DRINK <- factor(Nesarc_Data$S2AQ5B, labels = c("Every Day", "Nearly Every Day", "3-4 per Week", "2 per Week", "1 per Week", "2-3 per Month", "1 per Month", "7-11 per Year", "3-6 per Year", "1-2 per Year"))
+Nesarc_Data$TYPICAL_NUM <- Nesarc_Data$S2AQ5D
+Nesarc_Data$FREQ_FEEL <- factor(Nesarc_Data$S1Q213, labels = c("All of the time", "Most of the time", "Some of the time", "A little of the time", "None of the time"))
+Nesarc_Data$CONT_DRINK <- factor(Nesarc_Data$S2BQ1A16, labels = c("Yes", "No"))
+Nesarc_Data$OVERALL_MH_SCORE <- Nesarc_Data$NBMCS
+Nesarc_Data$AGE_STARTED_DRINKING <- Nesarc_Data$S2AQ16A
+```
+
+
+## III. Group Members and Contribution
+
+ - Brianna Gomez
+    - Wrote the topic area statement and research questions section.
+ - Colin
+    - Did the data cleaning / variable categorization.
+ - Andrew
+ - Ryan
+ - Pablo
