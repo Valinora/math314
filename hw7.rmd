@@ -1,0 +1,319 @@
+---
+title: "HW7_Instruction"
+author: "Colin Jamison"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# HW 07- Introduction (100 pts).
+## Assignment Overview
+The purpose of this assignment is to review inference for categorical data and numerical data.
+
+## Instructions
+- You will answer the questions directly in the Rmarkdown template file provided.
+- Please change your name in the template file.
+- How to insert R code chunks: You can quickly insert chunks into your R Markdown file with the keyboard shortcut Cmd + Option + I (Windows Ctrl + Alt + I).
+
+
+## Part I Inference for categorical data (Total 30 points)
+The American Psychological Association defines resilience as "the process of adapting well in the face of adversity, trauma, tragedy, threats or even significant sources of stress". Resilience refers to a person's capacity to resist adversity and is closely related to qualities such as self-confidence and persistence. Studies have suggested that resilience is an important factor in contributing to how medical students perceive their quality of life and educational environment.
+Survey data were collected from 1,350 students across 25 medical schools in the United States as part of a study examining the life of students and residents in healthcare professions. At each school, 54 students were randomly selected to participate in the study. Participants completed assessments measuring resilience, quality of life, perception of educational environment, depression symptoms, and anxiety symptoms.
+- *Resilience*. Higher scores on the resilience assessment are indicative of greater resilience; possible scores range from 14 to 98. The scores are reported according to a standardized scale: very low (14 to 56 points), low (57 to 64 points), moderately low (65 to 73 points), moderately high (74 to 81 points), high (82 to 90 points), and very high (91 to 98 points).
+Year in medical school was recorded as current level of training. The first two years of medical school are focused on basic science education (pre-clinical curriculum) and the last two years consist of rotations in clinical settings (clinical curriculum). After medical school, students undergo residency training in which they work as practicing physicians under the supervision of a senior clinician.
+
+The data may be loaded through the code below:
+```{r}
+# Load the datasets
+resilience <- read.csv("https://raw.githubusercontent.com/livelyjing/data/main/resilience.csv")
+
+```
+
+
+i. Present the contingency table of the two variables of interest sex and res. Please state how many levels for each variable.
+
+```{r}
+table_sex_res <- table(resilience$sex, resilience$res)
+table_sex_res
+```
+
+```{r}
+# Number of levels for each variable
+cat("Levels of sex:", nlevels(factor(resilience$sex)), "\n")
+cat("Levels of res:", nlevels(factor(resilience$res)), "\n")
+```
+
+The variable `sex` has 2 levels (female, male) and `res` has 6 levels (VeryLow, Low, ModLow, ModHigh, High, VeryHigh).
+
+ii. Please calculate the 95% confidence interval for the difference the the proportion of male medical students or residents whose resilience level is very high or high and that of female students or medical residents.
+Based on the results, do you think there is a difference in the proportion of male and female medical trainees who have very high or high resilience levels?
+
+Let $p_M$ be the proportion of male trainees with high or very high resilience, and $p_F$ be the proportion for females. The 95% confidence interval for $p_M - p_F$ is:
+
+$$(\hat{p}_M - \hat{p}_F) \pm z^* \sqrt{\frac{\hat{p}_M(1-\hat{p}_M)}{n_M} + \frac{\hat{p}_F(1-\hat{p}_F)}{n_F}}$$
+
+where $z^* = 1.96$.
+
+```{r}
+# Create a binary variable: 1 if resilience is High or VeryHigh
+resilience$high_res <- ifelse(resilience$res %in% c("High", "VeryHigh"), 1, 0)
+
+# Counts by sex
+n_M <- sum(resilience$sex == "male")
+n_F <- sum(resilience$sex == "female")
+x_M <- sum(resilience$sex == "male" & resilience$high_res == 1)
+x_F <- sum(resilience$sex == "female" & resilience$high_res == 1)
+
+p_M <- x_M / n_M
+p_F <- x_F / n_F
+
+cat("p_hat_M =", round(p_M, 4), "\n")
+cat("p_hat_F =", round(p_F, 4), "\n")
+```
+
+```{r}
+# 95% CI for p_M - p_F
+se <- sqrt(p_M * (1 - p_M) / n_M + p_F * (1 - p_F) / n_F)
+z_star <- qnorm(0.975)
+lower <- (p_M - p_F) - z_star * se
+upper <- (p_M - p_F) + z_star * se
+cat("95% CI for (p_M - p_F):", round(lower, 4), "to", round(upper, 4), "\n")
+```
+
+```{r}
+# Equivalently, using prop.test
+prop.test(x = c(x_M, x_F), n = c(n_M, n_F), conf.level = 0.95, correct = FALSE)
+```
+
+The 95% confidence interval is approximately $(-0.019, 0.087)$, which contains 0. Therefore, we do not have sufficient evidence that there is a difference in the proportions of male and female medical trainees with high or very high resilience. The prop.test confirms this with a p-value of 0.2119, which is greater than 0.05.
+
+iii. Suppose a researcher would like to investigate the relationship between resilience and level of training. Please conduct formal hypothesis test to see if there is an association between resilience and training level.
+a. State the Null hypothesis and Alternative hypothesis.
+
+- $H_0$: Resilience level and training level are independent (no association).
+- $H_A$: Resilience level and training level are not independent (there is an association).
+
+b. Use R code to perform the hypothesis test.
+
+```{r}
+table_res_training <- table(resilience$res, resilience$train)
+table_res_training
+```
+
+```{r}
+chi_test <- chisq.test(table_res_training)
+chi_test
+```
+
+c. Please check that the condition is met to use the test to perform the hypothesis test.
+
+The chi-square test requires that each expected cell count is at least 5.
+
+```{r}
+chi_test$expected
+```
+
+```{r}
+cat("All expected counts >= 5:", all(chi_test$expected >= 5), "\n")
+```
+
+All expected counts are at least 5, so the condition is satisfied.
+
+d. Based on the results from R, make a conclusion in the context of the problem.
+
+The chi-square test yields $\chi^2 = 9.818$ with $df = 10$ and a p-value of $0.4566$. Since the p-value ($0.4566$) is greater than $\alpha = 0.05$, we fail to reject $H_0$. There is insufficient evidence to conclude that there is an association between resilience level and training level among medical students and residents.
+
+
+
+
+## Part II (15 pts) One sample test for population mean (sample size is small)
+
+The typical weight of a baby at birth for the US population is 3,250 grams. Suppose an investigator takes a random sample of 50 birth weights from several teaching hospitals located in an inner-city neighborhood.
+The investigator suspects that the birth weights of babies in these teaching hospitals is larger than 3,250 grams, because of obesity prevalence in mothers giving birth at these hospitals.
+The results of this analysis will inform whether an educational program for pregnant women that promotes exercise and healthy eating should be started at the neighborhood community center.
+
+a. Load the data into R by the following command:
+```{r}
+birth.weights <- read.csv("https://raw.githubusercontent.com/livelyjing/data/main/birth.weights.csv")
+
+```
+b. Please provide a summary of the sample data set using mean, standard deviation and a histogram.
+
+```{r}
+cat("Mean:", mean(birth.weights$x), "\n")
+cat("SD:", sd(birth.weights$x), "\n")
+```
+
+```{r}
+hist(birth.weights$x,
+     main = "Histogram of Birth Weights",
+     xlab = "Birth Weight (grams)",
+     col = "lightblue",
+     breaks = 10)
+```
+
+c. Carry out a formal hypothesis test to see whether the mean birth weight for babies born in these teaching hospitals is greater than 3,250 grams. $\alpha = 0.05$
+
+Be sure to summarize your findings in the context of the data.
+
+We test whether the mean birth weight $\mu$ is greater than 3,250 grams.
+
+- $H_0: \mu = 3250$
+- $H_A: \mu > 3250$
+
+The test statistic is:
+
+$$t = \frac{\bar{x} - \mu_0}{s / \sqrt{n}}$$
+
+```{r}
+t.test(birth.weights$x, mu = 3250, alternative = "greater")
+```
+
+The sample mean is $\bar{x} = 3320.62$ grams with $s = 266.48$ grams and $n = 50$. The test yields $t = 1.874$ with $df = 49$ and a p-value of $0.0335$. Since the p-value ($0.0335$) is less than $\alpha = 0.05$, we reject $H_0$. There is significant evidence that the mean birth weight at these teaching hospitals is greater than 3,250 grams. This suggests that the educational program promoting exercise and healthy eating for pregnant women may be warranted.
+
+
+
+## Part III (15 pts) In each of the following scenarios, identify whether the data are paired or independent.
+
+
+  a) Does salary differ by gender for full professors at American universities? Draw a random sample of 50 female full professors and 50 male full professors, and compare their salaries.
+
+**Independent.** The 50 female and 50 male professors are separate, unrelated groups. There is no natural pairing between individual observations across the two groups.
+
+  b) Does Vitamin E increase artery thickness? Measure artery thickness for a group of patients before they start taking Vitamin E regularly for two years. Compare initial artery thickness to artery thickness at the end of the study.
+
+**Paired.** The same group of patients is measured twice (before and after taking Vitamin E). Each patient serves as their own control, so the two measurements are linked.
+
+  c) Do Intel's stock and Southwest Airlines' stock have similar rates of return? Take a random sample of 60 days, and compare Intel's and Southwest's stock on those days.
+
+**Paired.** Intel's and Southwest Airlines' stock returns are compared on the same 60 days. The day acts as the pairing variable, since market conditions on a given day affect both stocks.
+
+
+## Part IV:(40 pts) Two sample test for difference of population means
+### Problem A. The dataset called textbooks is a random sample of all the textbooks for UCLA courses. In this dataset, each textbook has two corresponding prices in the data set: one for the UCLA Bookstore (ucla_new) and one for Amazon (amaz_new). The price differences (diff = ucla_new - amaz_new) between Amazon and UCLA bookstore were also calculated for each textbook. The question is whether Amazon prices are, on average, different than those of the UCLA Bookstore for UCLA courses.
+1. Load the dataset using the following R code, and identify whether the data are paired, and whether the data is in a wide format or long format?
+```{r}
+textbooks <- read.csv("https://raw.githubusercontent.com/livelyjing/data/main/textbooks.csv")
+
+```
+
+The data are **paired**, because each textbook has both a UCLA price and an Amazon price. The data is in **wide format**, since both prices appear as separate columns in the same row.
+
+2. Plot a histogram of the variable called diff to check the distribution of the price differences between UCLA bookstore and Amazon.
+
+```{r}
+hist(textbooks$diff,
+     main = "Distribution of Price Differences (UCLA - Amazon)",
+     xlab = "Price Difference ($)",
+     col = "lightblue",
+     breaks = 10)
+```
+
+3. Conduct a two sided hypothesis test to check whether there is a difference in the average of Amazon price and UCLA bookstore for UCLA textbooks. (hint: please include the R code, report the test you used, the test statistic, the degree of freedom if any, the P value, and the conclusion)
+
+We test whether there is a difference in average price between UCLA Bookstore and Amazon.
+
+- $H_0: \mu_d = 0$ (no difference in average price)
+- $H_A: \mu_d \neq 0$ (there is a difference)
+
+The test statistic for a paired t-test is:
+
+$$t = \frac{\bar{d} - 0}{s_d / \sqrt{n}}$$
+
+```{r}
+t_result <- t.test(textbooks$diff, mu = 0, alternative = "two.sided")
+t_result
+```
+
+We use a **paired t-test**. The test statistic is $t = 7.649$ with $df = 72$ and a p-value of $6.928 \times 10^{-11}$. Since the p-value is far less than $\alpha = 0.05$, we reject $H_0$ and conclude there is a statistically significant difference in average textbook prices between the UCLA Bookstore and Amazon. On average, UCLA Bookstore textbooks cost more than Amazon.
+
+4. Find out a 95\% confidence interval for the average textbook price difference between UCLA bookstore and Amazon. (hint: Please report the result as a summary sentence. )
+
+```{r}
+t_result$conf.int
+```
+
+We are 95% confident that the average price difference (UCLA $-$ Amazon) is between \$9.44 and \$16.09. Since the interval does not contain 0, this confirms that UCLA Bookstore textbooks are, on average, significantly more expensive than Amazon.
+
+### Problem B. Go to the website https://www.stat.cmu.edu/isle/data_explorers.html, choose a dataset and download it. Pick the variables you will analyze, where the explanatory variable is categorical type with two levels, and the response variable is numerical.
+
+We use the **Cars93** dataset (available in R's `MASS` package), which contains data on 93 cars from 1993. We compare the highway MPG (`MPG.highway`) between domestic (`USA`) and non-domestic (`non-USA`) cars, using the `Origin` variable as the explanatory (categorical, 2 levels) and `MPG.highway` as the response (numerical).
+
+- Load your dataset into R.
+
+```{r}
+library(MASS)
+data(Cars93)
+head(Cars93[, c("Origin", "MPG.highway")])
+```
+
+- Conduct appropriate plot(s) for the data.
+
+```{r}
+boxplot(MPG.highway ~ Origin, data = Cars93,
+        main = "Highway MPG by Origin",
+        xlab = "Origin",
+        ylab = "Highway MPG",
+        col = c("lightblue", "salmon"))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+hist(Cars93$MPG.highway[Cars93$Origin == "USA"],
+     main = "USA", xlab = "Highway MPG", col = "lightblue", breaks = 10)
+hist(Cars93$MPG.highway[Cars93$Origin == "non-USA"],
+     main = "non-USA", xlab = "Highway MPG", col = "salmon", breaks = 10)
+par(mfrow = c(1, 1))
+```
+
+- Provide a few summary statistics -- sample size, mean, median, standard deviation.
+
+```{r}
+aggregate(MPG.highway ~ Origin, data = Cars93,
+          FUN = function(x) c(n = length(x),
+                              mean = round(mean(x), 2),
+                              median = round(median(x), 2),
+                              sd = round(sd(x), 2)))
+```
+
+- A description of the skew of the data based on the plot and summary statistics.
+
+For USA cars, the mean (28.15) is close to the median (28.00), suggesting an approximately symmetric distribution. For non-USA cars, the mean (30.09) is close to the median (30.00) as well, but the larger standard deviation (6.25 vs 4.15) indicates more spread. Both distributions show a slight right skew based on the histograms.
+
+- Conduct appropriate two sample hypothesis test, with a formal set up of your hypotheses and statistical conclusion of your results..
+
+We test whether there is a difference in mean highway MPG between USA and non-USA cars.
+
+- $H_0: \mu_{USA} = \mu_{non\text{-}USA}$ (no difference in mean highway MPG)
+- $H_A: \mu_{USA} \neq \mu_{non\text{-}USA}$ (there is a difference)
+
+The test statistic for a two-sample t-test (Welch's) is:
+
+$$t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}$$
+
+```{r}
+t_cars <- t.test(MPG.highway ~ Origin, data = Cars93, alternative = "two.sided")
+t_cars
+```
+
+The Welch two-sample t-test yields $t = -1.755$ with $df \approx 75.8$ and a p-value of $0.0834$. Since the p-value ($0.0834$) is greater than $\alpha = 0.05$, we fail to reject $H_0$. There is insufficient evidence to conclude that mean highway MPG differs between USA and non-USA manufactured cars.
+
+- State the confidence interval for the mean difference and its interpretation.
+
+```{r}
+t_cars$conf.int
+```
+
+We are 95% confident that the true difference in mean highway MPG (USA $-$ non-USA) is between $-4.15$ and $0.26$. Since the interval contains 0, this is consistent with our failure to reject $H_0$ — there is no significant difference in mean highway MPG between the two groups.
+
+
+
+## Part V Bonus (Optional, the purpose is to encourage your efforts in learning and character growth. Bonus points could be given but not limited to the following efforts)
+a. Attend community coding or office hours: please list the date, time and the faculty/student assistant you met.
+b. Write a statement of how you overcome the difficulties in life in order to learn.
+c. Write your questions regarding lectures.
+
+
